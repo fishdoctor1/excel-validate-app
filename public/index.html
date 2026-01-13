@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Excel/CSV Validate → SQL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; }
+    .row { margin: 10px 0; display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+    table { border-collapse: collapse; width: 100%; overflow:auto; display:block; max-height: 45vh; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 12px; white-space: nowrap; }
+    th { position: sticky; top: 0; background: #f7f7f7; z-index: 2; }
+    td[contenteditable="true"] { background: #fffdf0; }
+    textarea { width: 100%; height: 260px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .muted { color: #666; font-size: 12px; }
+    .error { color: #b00020; }
+    .ok { color: #0a7a2f; }
+  </style>
+</head>
+<body>
+  <h2>Excel/CSV → Extract (C→AI) → SQL</h2>
+
+  <div class="row">
+    <a href="/api/template/xlsx" target="_blank">Download Template .xlsx</a>
+    <a href="/api/template/csv" target="_blank">Download Template .csv</a>
+    <span class="muted">*template = header only</span>
+  </div>
+
+  <div class="row">
+    <input id="file" type="file" accept=".xlsx,.xls,.csv" />
+    <button id="btnExtract">PHASE 1: Extract</button>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <div id="extractWrap" style="display:none;">
+    <h3>PHASE 1 — EXTRACT (ตาราง C→AI)</h3>
+    <div class="muted">
+      - ตารางนี้แก้ไขได้ (ถือเป็น override ของผู้ใช้ = source of truth) <br/>
+      - ยังไม่ generate SQL จนกว่าจะพิมพ์คำยืนยัน: <b>Extract ตรง Excel 100%</b>
+    </div>
+    <div style="margin:10px 0;">
+      <table id="tbl"></table>
+    </div>
+
+    <div class="row">
+      <label>Extract</label>
+      <input id="confirmText" style="width:260px" placeholder='Extract' />
+      <button id="btnSql">PHASE 2: Generate SQL</button>
+    </div>
+
+    <h3>OUTPUT — SQL</h3>
+    <div id="sqlStatus" class="muted"></div>
+    <textarea id="sql" readonly></textarea>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
