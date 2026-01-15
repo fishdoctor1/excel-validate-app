@@ -14,8 +14,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * Column mapping (Template A->AI)
- * A testcase (optional)
- * B table_selector (optional)
  * C..AI = main extract columns (C->AI) strictly ordered
  */
 const C_TO_AI = [
@@ -55,8 +53,6 @@ const C_TO_AI = [
 ];
 
 const ALL_HEADERS_TEMPLATE = [
-  "testcase", // A
-  "table_selector", // B
   ...C_TO_AI, // C..AI
 ];
 
@@ -71,8 +67,7 @@ const TEMPLATE_CSV = path.join(
 );
 
 function SQL_VALIDATION_SUFFIX_SUCCESS(inputdate) {
-    return `
-  SELECT
+    return `SELECT
     e.document_no,
     e.account_code,
     e.plan_type,
@@ -167,8 +162,7 @@ function SQL_VALIDATION_SUFFIX_SUCCESS(inputdate) {
 }
 
 function SQL_VALIDATION_SUFFIX_FAIL(inputdate) {
-    return `
-  SELECT
+    return `SELECT
     e.document_no,
     e.account_code,
     e.plan_type,
@@ -407,7 +401,7 @@ function extractFromMatrix(matrix, sourceKind) {
 
     // indexes: A=0, B=1, C=2 ... AI=34
     const table_selector_raw = row[1]; // B
-    const cToAiRaw = row.slice(2, 35); // C..AI inclusive (2..34)
+    const cToAiRaw = row.slice(0, 33); // C..AI inclusive (2..34)
 
     // normalize per source for "empty"
     const cToAi = cToAiRaw.map((v) => {
@@ -489,9 +483,6 @@ function generateSql(rows, confirmText, inputdate, mode) {
 
   // datatype casts (ตาม mapping เดิมของแอป)
   const typeMap = {
-    excel_row: "::int",
-    table_selector: "::text",
-
     event_module: "::text",
     event_module_action: "::text",
     document_no: "::text",
@@ -527,7 +518,7 @@ function generateSql(rows, confirmText, inputdate, mode) {
     payment_date: "::timestamp",
   };
 
-  const colList = ["excel_row", "table_selector", ...C_TO_AI];
+  const colList = [...C_TO_AI];
 
   function literalWithCast(colName, value) {
     const cast = typeMap[colName] || "::text";
@@ -558,8 +549,6 @@ function generateSql(rows, confirmText, inputdate, mode) {
 
   const valuesLines = rows.map((r) => {
     const parts = [];
-    parts.push(literalWithCast("excel_row", r.excel_row));
-    parts.push(literalWithCast("table_selector", r.table_selector ?? null));
     for (const c of C_TO_AI) {
       parts.push(literalWithCast(c, r[c]));
     }
@@ -568,8 +557,6 @@ function generateSql(rows, confirmText, inputdate, mode) {
 
   const sqlCte = `WITH excel AS (
   SELECT
-    v.excel_row,
-    v.table_selector,
     v.${C_TO_AI.join(",\n    v.")}
   FROM (VALUES
 ${valuesLines.join(",\n")}
