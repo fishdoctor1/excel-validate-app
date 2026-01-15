@@ -1,16 +1,16 @@
-let rows = [];        // source-of-truth rows (includes excel_row + table_selector + C..AI)
-let columns = [];     // C..AI column list
+let rows = []; // source-of-truth rows (includes excel_row + table_selector + C..AI)
+let columns = []; // C..AI column list
 let displayRows = []; // display table (dates already toISOString in server)
 
 const $ = (id) => document.getElementById(id);
 
-function setStatus(text, cls="muted") {
+function setStatus(text, cls = "muted") {
   const el = $("status");
   el.className = cls;
   el.textContent = text;
 }
 
-function setSqlStatus(text, cls="muted") {
+function setSqlStatus(text, cls = "muted") {
   const el = $("sqlStatus");
   el.className = cls;
   el.textContent = text;
@@ -55,7 +55,7 @@ function buildTable() {
       td.dataset.col = c;
 
       const v = rDisp[c];
-      td.textContent = (v === null || v === undefined) ? "" : String(v);
+      td.textContent = v === null || v === undefined ? "" : String(v);
 
       td.addEventListener("input", (e) => {
         const rowIndex = Number(e.target.dataset.rowIndex);
@@ -84,13 +84,34 @@ function buildTable() {
   tbl.appendChild(tbody);
 }
 
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function todayYYYYMMDD() {
+  const d = new Date(); // ใช้ timezone ของเครื่องผู้ใช้
+  const y = d.getFullYear();
+  const m = pad2(d.getMonth() + 1);
+  const day = pad2(d.getDate());
+  return `${y}${m}${day}`;
+}
+
+// set default inputdate on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("inputdate");
+  if (el && !el.value) el.value = todayYYYYMMDD();
+});
+
 $("btnExtract").addEventListener("click", async () => {
   const f = $("file").files?.[0];
   if (!f) return setStatus("กรุณาเลือกไฟล์ก่อน", "error");
 
   setStatus("กำลัง extract...", "muted");
   setSqlStatus("");
-  $("sql").value = "";
+  $("sql_main").value = "";
+  $("sql_running_no").value = "";
+  $("sql_success_events").value = "";
+  $("sql_fail_events").value = "";
 
   const fd = new FormData();
   fd.append("file", f);
@@ -114,15 +135,21 @@ $("btnExtract").addEventListener("click", async () => {
 });
 
 $("btnSql").addEventListener("click", async () => {
-  const confirmText = $("confirmText").value;
+  const confirmText = "";
+  const inputdate = $("inputdate").value;
+  const mode = $("mode").value;
 
   setSqlStatus("กำลัง generate SQL...", "muted");
-  $("sql").value = "";
+
+  $("sql_main").value = "";
+  $("sql_running_no").value = "";
+  $("sql_success_events").value = "";
+  $("sql_fail_events").value = "";
 
   const resp = await fetch("/api/generate-sql", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ rows, confirmText })
+    body: JSON.stringify({ rows, confirmText, inputdate, mode })
   });
 
   const data = await resp.json();
@@ -132,5 +159,8 @@ $("btnSql").addEventListener("click", async () => {
   }
 
   setSqlStatus("Generate SQL สำเร็จ", "ok");
-  $("sql").value = data.sql;
+  $("sql_main").value = data.sql_main;
+  $("sql_running_no").value = data.sql_running_no;
+  $("sql_success_events").value = data.sql_success_events;
+  $("sql_fail_events").value = data.sql_fail_events;
 });

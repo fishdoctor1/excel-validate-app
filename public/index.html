@@ -8,11 +8,11 @@
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; }
     .row { margin: 10px 0; display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
     table { border-collapse: collapse; width: 100%; overflow:auto; display:block; max-height: 45vh; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 12px; white-space: nowrap; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; font-size: 18px; white-space: nowrap; }
     th { position: sticky; top: 0; background: #f7f7f7; z-index: 2; }
     td[contenteditable="true"] { background: #fffdf0; }
     textarea { width: 100%; height: 260px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .muted { color: #666; font-size: 12px; }
+    .muted { color: #666; font-size: 18px; }
     .error { color: #b00020; }
     .ok { color: #0a7a2f; }
   </style>
@@ -42,15 +42,33 @@
       <table id="tbl"></table>
     </div>
 
-    <div class="row">
-      <label>Extract</label>
-      <input id="confirmText" style="width:260px" placeholder='Extract' />
-      <button id="btnSql">PHASE 2: Generate SQL</button>
-    </div>
+    <label style="height: 4rem;font-size: 3rem;">mode:</label>
+      <select id="mode" style="height: 4rem;font-size: 3rem;">
+        <option value="success">success</option>
+        <option value="fail">fail</option>
+      </select>
 
-    <h3>OUTPUT — SQL</h3>
+    <div class="row" style="height: 4rem;font-size: 3rem;">
+      <label>inputdate (YYYYMMDD):</label>
+      <input id="inputdate" style="width:400px;height: 4rem;font-size: 3rem;" placeholder="20260615" />
+    </div>
+    <div class="row" style="height: 4rem;font-size: 3rem;">
+      <button id="btnSql" style="height: 4rem;font-size: 3rem;">PHASE 2: Generate SQL</button>
+    </div>
+    
+    <h3>OUTPUT — SQL (Main)</h3>
     <div id="sqlStatus" class="muted"></div>
-    <textarea id="sql" readonly></textarea>
+    <textarea id="sql_main" readonly></textarea>
+    
+    <h3>OUTPUT — SQL (Running No)</h3>
+    <textarea id="sql_running_no" readonly></textarea>
+    
+    <h3>OUTPUT — SQL (Success Events)</h3>
+    <textarea id="sql_success_events" readonly></textarea>
+    
+    <h3>OUTPUT — SQL (Fail Events)</h3>
+    <textarea id="sql_fail_events" readonly></textarea>
+    
   </div>
 
   <script src="/app.js"></script>
