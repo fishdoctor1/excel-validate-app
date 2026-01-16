@@ -574,15 +574,15 @@ ${valuesLines.join(",\n")}
   const keysList = keys.map((k) => `'${sqlEscapeText(k)}'`).join(", ");
   const likesList = likes.map((p) => `'${sqlEscapeText(p)}'`).join(", ");
 
-  const sql_running_no = `SELECT x.*
+  const sql_running_no = `DELETE
 FROM accounting.gisx_accounting_running_no x
 WHERE x.prefix IN (${keysList || "NULL"});`;
 
-  const sql_success_events = `SELECT x.*
+  const sql_success_events = `DELETE
 FROM accounting.accounting_${inputdate}_success_events x
 WHERE x.document_no LIKE ANY (ARRAY[${likesList || "NULL"}]);`;
 
-  const sql_fail_events = `SELECT x.*
+  const sql_fail_events = `DELETE
 FROM accounting.accounting_${inputdate}_fail_events x
 WHERE x.document_no LIKE ANY (ARRAY[${likesList || "NULL"}]);`;
 
